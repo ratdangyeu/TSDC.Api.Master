@@ -1,7 +1,13 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.Tokens;
 using PagedList.Core;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 using System.Security.Cryptography;
+using System.Text;
 using TSDC.Core.Domain.Master;
+using TSDC.Web.Framework;
 
 namespace TSDC.Service.Master
 {
@@ -9,13 +15,16 @@ namespace TSDC.Service.Master
     {
         #region Fields
         private readonly MasterContext _masterContext;
+        private readonly AppSettings _appSettings;
         #endregion
 
         #region Ctor
         public UserService(
-            MasterContext masterContext)
+            MasterContext masterContext,
+            IOptions<AppSettings> appSettings)
         {
             _masterContext = masterContext;
+            _appSettings = appSettings.Value;
         }
         #endregion
 
@@ -92,7 +101,7 @@ namespace TSDC.Service.Master
             return await _masterContext.User.FirstOrDefaultAsync(x => x.Id == id);
         }
 
-        public async Task<User?> Authentication(string userName, string password)
+        public async Task<string> Authentication(string userName, string password)
         {
             if (string.IsNullOrEmpty(userName) || string.IsNullOrEmpty(password))
             {
@@ -111,8 +120,10 @@ namespace TSDC.Service.Master
                 return null;
             }
 
-            return user;
-        }
+            string token = GenerateJwtToken(user);
+
+            return token;
+        }        
         #endregion
 
         #region List
@@ -133,7 +144,7 @@ namespace TSDC.Service.Master
             using(var hmac = new HMACSHA512())
             {
                 passwordSalt = hmac.Key;
-                passwordHash = hmac.ComputeHash(System.Text.Encoding.UTF8.GetBytes(password));
+                passwordHash = hmac.ComputeHash(Encoding.UTF8.GetBytes(password));
             }
         }
 
@@ -156,7 +167,7 @@ namespace TSDC.Service.Master
 
             using(var hmac = new HMACSHA512(passwordSalt))
             {
-                var computedHash = hmac.ComputeHash(System.Text.Encoding.UTF8.GetBytes(password));
+                var computedHash = hmac.ComputeHash(Encoding.UTF8.GetBytes(password));
                 for (int i = 0; i < computedHash.Length; i++)
                 {
                     if (computedHash[i] != passwordHash[i])
@@ -167,6 +178,21 @@ namespace TSDC.Service.Master
             }
 
             return true;
+        }
+
+        private string GenerateJwtToken(User user)
+        {
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var key = Encoding.ASCII.GetBytes(_appSettings.Secret);
+            var tokenDescriptor = new SecurityTokenDescriptor
+            {
+                Subject = new ClaimsIdentity(new[] { new Claim("Id", user.Id.ToString()) }),
+                Expires = DateTime.UtcNow.AddDays(7),
+                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
+            };
+
+            var token = tokenHandler.CreateToken(tokenDescriptor);
+            return tokenHandler.WriteToken(token);
         }
         #endregion
     }

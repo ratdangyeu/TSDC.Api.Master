@@ -15,7 +15,7 @@ namespace TSDC.Service.Master
 
         Task<User> GetByIdAsync(int id);
 
-        Task<User> Authentication(string userName, string password);
+        Task<string> Authentication(string userName, string password);
 
         IPagedList<User> Get(UserSearchContext ctx);
     }

@@ -16,11 +16,15 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="6.0.4" />
     <PackageReference Include="PagedList.Core" Version="1.17.4" />
+    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.17.0" />
   </ItemGroup>
 
   <ItemGroup>
     <Reference Include="TSDC.Core.Domain.Master">
       <HintPath>..\..\..\..\Shared\TSDC.SharedRefs\Assemblies\Core\TSDC.Core.Domain.Master.dll</HintPath>
+    </Reference>
+    <Reference Include="TSDC.Web.Framework">
+      <HintPath>..\..\..\..\Shared\TSDC.SharedRefs\Assemblies\Core\TSDC.Web.Framework.dll</HintPath>
     </Reference>
   </ItemGroup>
 
