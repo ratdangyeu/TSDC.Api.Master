@@ -1,0 +1,31 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Folder Include="Services\UserRole\" />
+    <Folder Include="Services\Role\" />
+    <Folder Include="Services\PermissionRole\" />
+    <Folder Include="Services\Permission\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="6.0.4" />
+    <PackageReference Include="PagedList.Core" Version="1.17.4" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="TSDC.Core.Domain.Master">
+      <HintPath>..\..\..\..\Shared\TSDC.SharedRefs\Assemblies\Core\TSDC.Core.Domain.Master.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+	<Exec Command="xcopy &quot;$(TargetDir)*.dll&quot; &quot;$(ProjectDir)..\..\..\..\Shared\TSDC.SharedRefs\Assemblies\Core&quot; /c /e /y /exclude:$(SolutionDir)..\..\..\Shared\TSDC.SharedRefs\Config\ExcludeCopy.txt&#xD;&#xA;xcopy &quot;$(TargetDir)*.dll.config&quot; &quot;$(ProjectDir)..\..\..\..\Shared\TSDC.SharedRefs\Assemblies\Core&quot; /c /e /y /exclude:$(SolutionDir)..\..\..\Shared\TSDC.SharedRefs\Config\ExcludeCopy.txt&#xD;&#xA;xcopy &quot;$(TargetDir)*.pdb&quot; &quot;$(ProjectDir)..\..\..\..\Shared\TSDC.SharedRefs\Assemblies\Core&quot; /c /e /y /exclude:$(SolutionDir)..\..\..\Shared\TSDC.SharedRefs\Config\ExcludeCopy.txt&#xD;&#xA;xcopy &quot;$(TargetDir)*.xml&quot; &quot;$(ProjectDir)..\..\..\..\Shared\TSDC.SharedRefs\Assemblies\Core&quot; /c /e /y /exclude:$(SolutionDir)..\..\..\Shared\TSDC.SharedRefs\Config\ExcludeCopy.txt" />
+  </Target>
+
+</Project>
