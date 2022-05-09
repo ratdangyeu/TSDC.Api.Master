@@ -40,6 +40,7 @@ namespace TSDC.Service.Master
 
             entity.PasswordHash = passwordHash;
             entity.PasswordSalt = passwordSalt;
+            entity.Password = String.Empty;
 
             await _masterContext.User.AddAsync(entity);
             _masterContext.SaveChanges();

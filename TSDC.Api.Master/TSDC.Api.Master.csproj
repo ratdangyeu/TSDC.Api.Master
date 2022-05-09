@@ -7,6 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="6.0.4" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="6.0.4" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.2.3" />
   </ItemGroup>
@@ -16,12 +17,30 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Reference Include="TSDC.ApiHelper">
+      <HintPath>..\..\..\..\Shared\TSDC.SharedRefs\Assemblies\Core\TSDC.ApiHelper.dll</HintPath>
+    </Reference>
     <Reference Include="TSDC.Core.Domain.Master">
       <HintPath>..\..\..\..\Shared\TSDC.SharedRefs\Assemblies\Core\TSDC.Core.Domain.Master.dll</HintPath>
+    </Reference>
+    <Reference Include="TSDC.SharedMvc.Master">
+      <HintPath>..\..\..\..\Shared\TSDC.SharedRefs\Assemblies\Core\TSDC.SharedMvc.Master.dll</HintPath>
     </Reference>
     <Reference Include="TSDC.Web.Framework">
       <HintPath>..\..\..\..\Shared\TSDC.SharedRefs\Assemblies\Core\TSDC.Web.Framework.dll</HintPath>
     </Reference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Update="appsettings.Development.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Update="appsettings.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Update="appsettings.Production.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
 
 </Project>
