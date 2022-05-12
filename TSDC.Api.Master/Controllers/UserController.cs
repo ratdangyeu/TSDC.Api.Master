@@ -30,7 +30,7 @@ namespace TSDC.Api.Master.Controllers
         [HttpPost]
         public async Task<IActionResult> Create(User user)
         {
-            if (await _userService.ExistsAsync(user?.Code, user?.UserName, user?.Email))
+            if (await _userService.ExistsAsync(user.Code, user.UserName, user.Email))
             {
                 return Ok(new BaseResult<User>
                 {
@@ -41,10 +41,10 @@ namespace TSDC.Api.Master.Controllers
 
             await _userService.InsertAsync(user, user.Password);
 
-            return Ok(new BaseResult<User>
+            return Ok(new BaseResult<int>
             {
                 Status = true,
-                Data = user
+                Data = user.Id
             });
         }
 
@@ -53,7 +53,7 @@ namespace TSDC.Api.Master.Controllers
         [HttpPost]
         public async Task<IActionResult> Authentication(AuthenticateRequest auth)
         {
-            var token = await _userService.Authentication(auth.UserName?.Trim(), auth.Password?.Trim());
+            var token = await _userService.Authentication(auth.UserName, auth.Password);
 
             if (string.IsNullOrEmpty(token))
             {
@@ -73,7 +73,7 @@ namespace TSDC.Api.Master.Controllers
 
         [Route("get-by-id")]
         [HttpGet]
-        public async Task<IActionResult> GetById([FromQuery] int id)
+        public async Task<IActionResult> GetById(int id)
         {
             var entity = await _userService.GetByIdAsync(id);
 
