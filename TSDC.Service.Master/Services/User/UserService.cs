@@ -7,6 +7,7 @@ using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
 using TSDC.Core.Domain.Master;
+using TSDC.Core.Domain.Master.Enums;
 using TSDC.Web.Framework;
 
 namespace TSDC.Service.Master
@@ -130,7 +131,41 @@ namespace TSDC.Service.Master
         #region List
         public IPagedList<User> Get(UserSearchContext ctx)
         {
-            throw new NotImplementedException();
+            ctx.Keywords = ctx.Keywords?.Trim();
+
+            var query = from p in _masterContext.User select p;
+
+            if (!string.IsNullOrEmpty(ctx.Keywords))
+            {
+                query = from p in query
+                        where p.Code.Contains(ctx.Keywords) ||
+                              p.UserName.Contains(ctx.Keywords) ||
+                              p.Email.Contains(ctx.Keywords)
+                        select p;
+            }
+
+            if (ctx.Status != null)
+            {
+                if (ctx.Status == (int)ActiveStatus.Active)
+                {
+                    query = from p in query
+                            where !p.Inactive
+                            select p;
+                }
+
+                if (ctx.Status == (int)ActiveStatus.Inactive)
+                {
+                    query = from p in query
+                            where p.Inactive
+                            select p;
+                }
+            }
+
+            query = from p in query
+                    orderby p.Code
+                    select p;
+
+            return new PagedList<User>(query, ctx.PageNumber, ctx.PageSize);
         }
         #endregion
 

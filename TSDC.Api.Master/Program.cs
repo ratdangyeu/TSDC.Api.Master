@@ -1,9 +1,11 @@
+using AutoMapper;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using TSDC.Core.Domain.Master;
 using TSDC.Service.Master;
+using TSDC.SharedMvc.Master.Infrastructure;
 using TSDC.Web.Framework;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -22,6 +24,14 @@ builder.Services.AddDbContext<MasterContext>(options =>
 {
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
 });
+
+var mapperConfig = new MapperConfiguration(option =>
+{
+    option.AddProfile(new MasterProfile());
+});
+
+IMapper mapper = new Mapper(mapperConfig);
+builder.Services.AddSingleton(mapper);
 
 builder.Services.AddAuthentication(x =>
 {
