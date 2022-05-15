@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Mvc;
 using TSDC.ApiHelper;
 using TSDC.Core.Domain.Master;
 using TSDC.Service.Master;
@@ -14,13 +15,16 @@ namespace TSDC.Api.Master.Controllers
     {
         #region Fields
         private readonly IUserService _userService;
+        private readonly IMapper _mapper;
         #endregion
 
         #region Ctor
         public UserController(
-            IUserService userService)
+            IUserService userService,
+            IMapper mapper)
         {
             _userService = userService;
+            _mapper = mapper;
         }
         #endregion
 
@@ -28,23 +32,25 @@ namespace TSDC.Api.Master.Controllers
         [AllowAnonymous]
         [Route("create")]
         [HttpPost]
-        public async Task<IActionResult> Create(User user)
+        public async Task<IActionResult> Create(UserModel model)
         {
-            if (await _userService.ExistsAsync(user.Code, user.UserName, user.Email))
+            if (await _userService.ExistsAsync(model.Code, model.UserName, model.Email))
             {
-                return Ok(new BaseResult<User>
+                return Ok(new BaseResult<UserModel>
                 {
                     Status = false,
                     Message = "Người dùng đã tồn tại"
                 });
             }
 
-            await _userService.InsertAsync(user, user.Password);
+            var entity = _mapper.Map<User>(model);
 
-            return Ok(new BaseResult<int>
+            await _userService.InsertAsync(entity, model.Password);
+
+            return Ok(new BaseResult<UserModel>
             {
                 Status = true,
-                Data = user.Id
+                Data = model
             });
         }
 
@@ -53,21 +59,26 @@ namespace TSDC.Api.Master.Controllers
         [HttpPost]
         public async Task<IActionResult> Authentication(AuthenticateRequest auth)
         {
-            var token = await _userService.Authentication(auth.UserName, auth.Password);
+            var user = await _userService.Authentication(auth.UserName, auth.Password);
 
-            if (string.IsNullOrEmpty(token))
+            if (user == null)
             {
-                return BadRequest(new BaseResult<User>
+                return BadRequest(new BaseResult<UserModel>
                 {
                     Status = false,
                     Message = "Tên đăng nhập hoặc mật khẩu không đúng"
                 });
             }
 
-            return Ok(new BaseResult<string>
+            var token = _userService.GenerateJwtToken(user);
+
+            var model = _mapper.Map<UserModel>(user);
+
+            return Ok(new BaseResult<UserModel>
             {
                 Status = true,
-                Data = token
+                Data = model,
+                Token = token
             });
         }
 
@@ -79,17 +90,19 @@ namespace TSDC.Api.Master.Controllers
 
             if (entity == null)
             {
-                return NotFound(new BaseResult<User>
+                return NotFound(new BaseResult<UserModel>
                 {
                     Status = false,
                     Message = "Người dùng không tồn tại"
                 });
             }
 
-            return Ok(new BaseResult<User>
+            var model = _mapper.Map<UserModel>(entity);
+
+            return Ok(new BaseResult<UserModel>
             {
                 Status = true,
-                Data = entity
+                Data = model
             });
         }
         #endregion
