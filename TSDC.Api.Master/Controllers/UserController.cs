@@ -33,7 +33,7 @@ namespace TSDC.Api.Master.Controllers
         [Route("create")]
         [HttpPost]
         public async Task<IActionResult> Create(UserModel model)
-        {
+        {            
             if (await _userService.ExistsAsync(model.Code, model.UserName, model.Email))
             {
                 return Ok(new BaseResult<UserModel>
